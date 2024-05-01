@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:objectdetection/camera_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tflite_v2/tflite_v2.dart';
 
@@ -12,6 +14,17 @@ class ScanController extends GetxController{
   late CameraImage cameraImage;
   var cameraCount = 0;
 
+  var x, y, w, h = 0.0;
+  var label = "";
+
+  
+ 
+  late List<String> recipeData = [];
+  RecipeData() async {
+  var ingredients = recipeData;
+}
+  
+   
   @override
   void onInit() {
     // TODO: implement onInit
@@ -26,6 +39,9 @@ class ScanController extends GetxController{
     cameraController.dispose();
   }
   var isCameraInitialized = false.obs;
+
+
+
 
   inItCamera() async{
     if (await Permission.camera.request().isGranted){
@@ -63,7 +79,7 @@ class ScanController extends GetxController{
 
 
     objectDetector(CameraImage image) async{
-      var detector = await Tflite.runModelOnFrame(bytesList: image.planes.map((e) {
+      var _detector = await Tflite.runModelOnFrame(bytesList: image.planes.map((e) {
         return e.bytes;
       }).toList(),
       asynch: true,
@@ -76,9 +92,20 @@ class ScanController extends GetxController{
       threshold: 0.4
       );
 
-      if (detector != null ){
-        print("result is $detector");
-      }
+      if (_detector != null ){
+        var ourDetectorObject = _detector.first;
+        if(ourDetectorObject['confidenceInClass'] *(100) > 45){
+          label = _detector.first['detectedClass'].toString();
+          h = ourDetectorObject['rect']['h'];
+          w = ourDetectorObject['rect']['w'];
+          x = ourDetectorObject['rect']['x'];
+          y = ourDetectorObject['rect']['y'];
+        }
+        
+          update(); 
+          recipeData = _detector.cast<String>();
+          
+      }   
     }
-  
   }
+

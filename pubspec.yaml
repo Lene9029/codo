@@ -15,6 +15,7 @@ dependencies:
   get: ^4.6.6
   permission_handler: ^11.3.1
   image: ^4.1.7
+  sqflite: ^2.3.3
   
 
 dev_dependencies:
